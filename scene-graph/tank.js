@@ -73,8 +73,92 @@ function main() {
     scene.add(groundMesh)
 
 
-    // Making Target
+    // Tank
+    const tank = new THREE.Object3D()
+    scene.add(tank)
 
+
+    // Body
+    const carWidth = 4,
+            carHeight = 1,
+            carLength = 8
+    const bodyGeometry = new THREE.BoxGeometry(carWidth, carHeight, carLength)
+    const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x6688AA })
+    const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial)
+    bodyMesh.position.y = 2
+    tank.add(bodyMesh)
+
+    // Tank Camera
+    const tankCameraFov = 75
+    const tankCamera = makeCamera(tankCameraFov)
+    tankCamera.position.y = 3
+    tankCamera.position.z = -6
+    tankCamera.rotation.y = Math.PI
+    bodyMesh.add(tankCamera)
+
+
+    // Wheels
+    const wheelRadius = 1,
+            wheelThickness = 0.5,
+            wheelSegments = 6
+    const wheelGeometry = new THREE.CylinderGeometry(wheelRadius, wheelRadius, wheelThickness, wheelSegments)
+    const wheelMaterial = new THREE.MeshPhongMaterial({ color: 0x6688AA })
+    const wheelPositions = [
+        [-carWidth / 2 - wheelThickness, -carHeight / 2, carLength / 3],
+        [carWidth / 2 + wheelThickness, -carHeight / 2, carLength / 3],
+        [-carWidth / 2 - wheelThickness, -carHeight / 2, 0],
+        [carWidth / 2 + wheelThickness, -carHeight / 2, 0],
+        [-carWidth / 2 - wheelThickness, -carHeight / 2, -carLength / 3],
+        [carWidth / 2 + wheelThickness, -carHeight / 2, -carLength / 3],
+    ]
+    const wheelMeshes = wheelPositions.map(pos => {
+        const wheelMesh = new THREE.Mesh(wheelGeometry, wheelMaterial)
+        wheelMesh.position.set(...pos)
+        wheelMesh.rotation.z = Math.PI * 0.5
+        wheelMesh.castShadow = true
+        bodyMesh.add(wheelMesh)
+        return wheelMesh
+    })
+
+
+    // Dome
+    const domeRadius = carWidth / 2 - 0.25,
+            domeHeightSegment = 6,
+            domeWidthSegment = 6,
+            phiStart = 0,
+            phiEnd = 2 * Math.PI,
+            thetaStart = 0,
+            thetaEnd = Math.PI
+    const domeGeometry = new THREE.SphereGeometry(domeRadius, domeHeightSegment, domeWidthSegment,
+                                            phiStart, phiEnd, thetaStart, thetaEnd)
+    const domeMesh = new THREE.Mesh(domeGeometry, bodyMaterial)
+    bodyMesh.add(domeMesh)
+    domeMesh.position.y = 0.5
+
+
+    // Turet
+    const turetWidth = 0.1,
+            turetHeight = 0.1,
+            turetLength = carLength * 0.75 * 0.2
+
+    // Turet Pivot
+    const turetPivot = new THREE.Object3D()
+    turetPivot.position.y = 0.5 + turetHeight * 2
+    turetPivot.scale.set(5, 5, 5)
+    bodyMesh.add(turetPivot)
+
+    // Canon
+    const turetGeometry = new THREE.BoxGeometry(turetWidth, turetHeight, turetLength)
+    const turetMesh = new THREE.Mesh(turetGeometry, bodyMaterial)
+    turetMesh.position.z = turetLength * 0.5
+    turetPivot.add(turetMesh)
+
+    // Turet Camera
+    const turretCamera = makeCamera()
+    turretCamera.position.y = .75 * .2
+    turetMesh.add(turretCamera)
+
+    // Making Target
     // Target orbit 
     const targetOrbit = new THREE.Object3D()
     scene.add(targetOrbit)
@@ -86,7 +170,7 @@ function main() {
 
     // Target Bob
     const targetBob = new THREE.Object3D()
-    // targetElevation.position.z = carLength * 2
+    targetElevation.position.z = carLength * 2
     targetElevation.add(targetBob)
 
     // Target
