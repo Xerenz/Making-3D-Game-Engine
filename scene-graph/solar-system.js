@@ -44,6 +44,13 @@ function main() {
 
 
     // Making the Solar System 
+
+    // The Solar system 
+    const solarSystem = new THREE.Object3D()
+    scene.add(solarSystem)
+    objects.push(solarSystem)
+
+    // Geometry
     const radius = 1,
             widthSegment = 6,
             heightSegment = 6
@@ -53,19 +60,17 @@ function main() {
     const sunMaterial = new THREE.MeshPhongMaterial({ emissive : 0xFFFF00 })
     const sun = new THREE.Mesh(sphereGeometry, sunMaterial)
     sun.scale.set(5, 5, 5)
+    solarSystem.add(sun)
     objects.push(sun)
 
     // Making the Earth
     const earthMaterial = new THREE.MeshPhongMaterial({ color: 0x2233FF, emissive: 0x112244 })
     const earth = new THREE.Mesh(sphereGeometry, earthMaterial)
     earth.scale.set(2, 2, 2)
-    earth.position.x = 20
+    earth.position.x = 15
+    solarSystem.add(earth)
     objects.push(earth)
 
-
-    // Add to scene
-    scene.add(sun)
-    scene.add(earth)
 
     // Rendering
     function render(time) {
