@@ -16,20 +16,47 @@ function main() {
     const scene = new THREE.Scene()
 
     // Box object
+    function makeBox(geometry, color, position) {
+        const material = new THREE.MeshPhongMaterial({ color : color })
+        const cube = new THREE.Mesh(geometry, material)
+
+        scene.add(cube)
+        cube.position.x = position
+
+
+        return cube
+    }
+
     const boxWidth = 1, boxHeight = 1, boxDepth = 1
     const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth)
-    const material = new THREE.MeshBasicMaterial({ color : 0x44aa88 })
-    const cube = new THREE.Mesh(geometry, material)
+    
+    const cubes = [
+        makeBox(geometry, 0x44aa88, 0),
+        makeBox(geometry, 0x4488aa, 2),
+        makeBox(geometry, 0x88aa44, -2)
+    ]
+
+    // Light
+    const color = 0xFFFFFF
+    const intensity = 1
+    const light = new THREE.DirectionalLight(color, intensity)
+    light.position.set(-1, 2, 4)
+
 
     // Addition to scene
-    scene.add(cube)
+    scene.add(light)
 
     // Render 
     function render(time) {
-        time *= 0.001 // convert millisec to sec
+        time *= 0.001
 
-        cube.rotation.x = time
-        cube.rotation.y = time
+        cubes.forEach((cube, index) => {
+            let speed = 1 + index * 0.1
+            let rotation = time * speed
+
+            cube.rotation.x = rotation
+            cube.rotation.y = rotation
+        })
 
         renderer.render(scene, camera)
 
