@@ -46,9 +46,35 @@ function main() {
     // Addition to scene
     scene.add(light)
 
+    // Responsive resize to adjust pixels
+    function resizeRenderer(renderer) {
+        const canvas = renderer.domElement
+
+        // HD-DPI display crispness
+        const pixelRatio = window.devicePixelRatio 
+        const { clientWidth, clientHeight } = canvas
+
+        const width = clientWidth * pixelRatio | 0
+        const height = clientHeight * pixelRatio | 0
+
+        const needResize = canvas.width !== width || canvas.height !== height
+        if (needResize) {
+            renderer.setSize(width, height, false)
+        }
+
+        return needResize
+    }
+
     // Render 
     function render(time) {
         time *= 0.001
+
+        // Responsive
+        if (resizeRenderer(renderer)) {
+            const canvas = renderer.domElement
+            camera.aspect = canvas.clientWidth / canvas.clientHeight // adjusting the aspect ratio to canvas size
+            camera.updateProjectionMatrix()
+        }
 
         cubes.forEach((cube, index) => {
             let speed = 1 + index * 0.1
