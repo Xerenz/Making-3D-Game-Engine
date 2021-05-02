@@ -13,7 +13,7 @@ function main() {
             near = 0.1,
             far = 1000
     const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-    camera.position.set(0, 50, 0)
+    camera.position.set(0, 70, 0)
     camera.up.set(0, 0, 1)
     camera.lookAt(0, 0, 0)
 
@@ -63,13 +63,31 @@ function main() {
     solarSystem.add(sun)
     objects.push(sun)
 
+    // The Earth orbit
+    const earthOrbit = new THREE.Object3D()
+    earthOrbit.position.x = 15
+    solarSystem.add(earthOrbit) // Earth and Moon are part of earth orbit
+    objects.push(earthOrbit)
+
     // Making the Earth
     const earthMaterial = new THREE.MeshPhongMaterial({ color: 0x2233FF, emissive: 0x112244 })
     const earth = new THREE.Mesh(sphereGeometry, earthMaterial)
     earth.scale.set(2, 2, 2)
-    earth.position.x = 15
-    solarSystem.add(earth)
+    earthOrbit.add(earth)
     objects.push(earth)
+
+    // The Moon orbit
+    const moonOrbit = new THREE.Object3D()
+    moonOrbit.position.x = 5
+    earthOrbit.add(moonOrbit)
+    objects.push(moonOrbit)
+
+    // Making the Moon
+    const moonMaterial = new THREE.MeshPhongMaterial({ color: 0x888888, emissive: 0x222222 })
+    const moon = new THREE.Mesh(sphereGeometry, moonMaterial)
+    moon.scale.set(0.5, 0.5, 0.5)
+    moonOrbit.add(moon)
+    objects.push(moon)
 
 
     // Rendering
