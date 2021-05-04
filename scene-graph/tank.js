@@ -183,12 +183,50 @@ function main() {
     targetMesh.castShadow = true
     targetBob.add(targetMesh)
 
+    // Target Camera
+    const targetCamera = makeCamera()
+    const targetCameraPivot = new THREE.Object3D()
+    targetCamera.position.y = 1
+    targetCamera.position.z = -2
+    targetCamera.rotation.y = Math.PI
+    targetBob.add(targetCameraPivot)
+    targetCameraPivot.add(targetCamera)
+
 
     // Cameras
     let cameras = [
         { cam : camera, info : 'detached camera' },
-
+        { cam: turretCamera, desc: 'on turret looking at target', },
+        { cam: targetCamera, desc: 'near target looking at tank', },
+        { cam: tankCamera, desc: 'above back of tank', },
     ]
+
+    // Curve
+    const curve = new THREE.SplineCurve( [
+        new THREE.Vector2( -10, 0 ),
+        new THREE.Vector2( -5, 5 ),
+        new THREE.Vector2( 0, 0 ),
+        new THREE.Vector2( 5, -5 ),
+        new THREE.Vector2( 10, 0 ),
+        new THREE.Vector2( 5, 10 ),
+        new THREE.Vector2( -5, 10 ),
+        new THREE.Vector2( -10, -10 ),
+        new THREE.Vector2( -15, -8 ),
+        new THREE.Vector2( -10, 0 ),
+    ] )
+    const points = curve.getPoints( 50 )
+    const geometry = new THREE.BufferGeometry().setFromPoints( points )
+    const material = new THREE.LineBasicMaterial( { color : 0xff0000 } )
+    const splineObject = new THREE.Line( geometry, material )
+    splineObject.rotation.x = Math.PI * .5
+    splineObject.position.y = 0.05
+    scene.add(splineObject)
+
+
+    // Positions 
+    const targetPosition = new THREE.Vector3()
+    const tankPosition = new THREE.Vector2()
+    const tankTarget = new THREE.Vector2()
 
 
     // Render
@@ -210,6 +248,23 @@ function main() {
         targetMesh.rotation.x = time * 13
         targetMaterial.emissive.setHSL(time * 10 % 1, 1, .25) 
         targetMaterial.color.setHSL(time * 10 % 1, 1, .25)
+
+        // Move Tank
+        const tankTime = time * 0.05
+        curve.getPointAt(tankTime % 1, tankPosition)
+        curve.getPointAt((tankTime + 0.01) % 1, tankTarget)
+        tank.position.set(tankPosition.x, 0, tankPosition.y)
+        tank.lookAt(tankTarget.x, 0, tankTarget.y)
+
+        // Move turet to face the target
+        targetMesh.getWorldPosition(targetPosition)
+        turetPivot.lookAt(targetPosition)
+
+        // Move Wheels
+        wheelMeshes.forEach(wheel => {
+            wheel.rotation.x = time * 3
+        })
+
 
         renderer.render(scene, camera)
 
