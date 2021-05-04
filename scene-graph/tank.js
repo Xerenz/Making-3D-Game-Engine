@@ -196,10 +196,34 @@ function main() {
     // Cameras
     let cameras = [
         { cam : camera, info : 'detached camera' },
-        { cam: turretCamera, desc: 'on turret looking at target', },
-        { cam: targetCamera, desc: 'near target looking at tank', },
-        { cam: tankCamera, desc: 'above back of tank', },
+        { cam: turretCamera, info : 'on turret looking at target', },
+        { cam: targetCamera, info : 'near target looking at tank', },
+        { cam: tankCamera, info : 'above back of tank', },
     ]
+
+    // Camera shifter
+    const ui = document.querySelector('#ui')
+    cameras.forEach((element, index) => {
+        let div = document.createElement('div')
+        let ip = document.createElement('input')
+        let label = document.createElement('label')
+
+        ip.type = 'radio'
+        ip.value = index
+        ip.name = 'choice'
+
+        label.innerHTML = element.info
+
+        div.appendChild(ip)
+        div.appendChild(label)
+        ui.appendChild(div)
+
+    });
+    const btnDiv = document.createElement('div')
+    const btn = document.createElement('button')
+    btn.innerHTML = 'Select'
+    btnDiv.appendChild(btn)
+    ui.appendChild(btnDiv)
 
     // Curve
     const curve = new THREE.SplineCurve( [
@@ -228,6 +252,29 @@ function main() {
     const tankPosition = new THREE.Vector2()
     const tankTarget = new THREE.Vector2()
 
+
+    // Chose camera
+    const choices = document.querySelectorAll('input[name="choice"]')
+    console.log(choices)
+    let selectedValue, selectedCamera
+
+    btn.onclick = () => {
+        for (let choice in choices) {
+            if (choice.checked) {
+                selectedValue = parseInt(choice.value)
+                console.log('Camera choice:', selectedValue)
+                break
+            }
+        }
+        if (selectedValue) {
+            selectedCamera = cameras[selectedValue]
+        }
+        else {
+            selectedCamera = cameras[0]
+        }
+
+        console.log(selectedCamera)
+    }
 
     // Render
     function render(time) {
@@ -260,14 +307,25 @@ function main() {
         targetMesh.getWorldPosition(targetPosition)
         turetPivot.lookAt(targetPosition)
 
+        // Turet camera looks at target always
+        turretCamera.lookAt(targetPosition)
+
+        // Move target camera to always face the tank
+        tank.getWorldPosition(targetPosition)
+        targetCameraPivot.lookAt(targetPosition)
+
         // Move Wheels
         wheelMeshes.forEach(wheel => {
             wheel.rotation.x = time * 3
         })
 
-
-        renderer.render(scene, camera)
-
+        if (!selectedCamera) {
+            renderer.render(scene, camera)
+        }
+        else {
+            renderer.render(scene, selectedCamera.cam)
+        }
+        
         requestAnimationFrame(render)
     }
     requestAnimationFrame(render)
