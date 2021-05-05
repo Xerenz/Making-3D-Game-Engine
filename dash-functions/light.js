@@ -11,12 +11,24 @@ function main() {
     const scene = new THREE.Scene()
 
     // Camera 
+
+    // Perspective Camera
     function makeCamera(fov=40, aspect=2, near=0.1, far=100) {
         return new THREE.PerspectiveCamera(fov, aspect, near, far)
     }
 
     const camera = makeCamera(45)
     camera.position.set(0, 10, 20)
+
+    // Orthograhic Camera
+    const left = -1
+    const right = 1
+    const top = 1
+    const bottom = -1
+    const near = 5
+    const far = 50
+    const camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far)
+    camera.zoom = 0.2
 
     // Orbit Controls
     const orbitControls = new OrbitControls(camera, canvas)
