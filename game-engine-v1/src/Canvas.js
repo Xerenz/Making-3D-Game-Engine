@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import * as THREE from 'three'
+import * as CANNON from 'cannon'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 import CheckerImage from './images/checker.png'
@@ -15,8 +16,13 @@ export default function Canvas(props) {
         // Scene
         const scene = new THREE.Scene()
 
-        // Camera 
+        // World
+        const world = new CANNON.World()
+        world.gravity.set(0, -9.8, 0)
+        world.broadphase = new CANNON.NaiveBroadphase()
+        world.solver.iterations = 10
 
+        // Camera 
         // Perspective Camera
         function makeCamera(fov=40, aspect=2, near=0.1, far=100) {
             return new THREE.PerspectiveCamera(fov, aspect, near, far)
@@ -31,7 +37,6 @@ export default function Canvas(props) {
         orbitControls.update()
 
         // Light
-
         // Ambient Light
         {
             const intensity = 1,
@@ -64,11 +69,24 @@ export default function Canvas(props) {
             scene.add(planeMesh)
         }
 
-        // Box
-        // const boxGeometry = new THREE.BoxGeometry(5, 5, 5)
-        // const boxMaterial = new THREE.MeshPhongMaterial({ color : 0xff33aa })
-        // const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial)
-        scene.add(props.box)
+        // Add to scene and the world
+        for (let entity of props.entities) {
+            console.log(entity)
+            scene.add(entity.mesh)
+            world.add(entity.mesh.cannon_rigid_body)
+        }
+
+        // Set mesh positions to physics world
+        function updateMeshWithPhysics() {
+            for (let mesh of scene.children) {
+                if (!mesh.cannon_rigid_body)
+                    continue
+    
+                mesh.position.copy(mesh.cannon_rigid_body.position)
+                mesh.quaternion.copy(mesh.cannon_rigid_body.quaternion)
+            }
+        }
+        updateMeshWithPhysics()
 
         // Responsive resize to adjust pixels
         function resizeRenderer(renderer) {

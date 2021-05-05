@@ -14,8 +14,13 @@ function App() {
           if (values) {
             return (
               <>
-                <Canvas box={values.box}/>
-                <ControlPanel box={values.box} makeBox={values.makeBox}/>
+                <Canvas entities={values.entities}
+                selectedEntity={values.selectedEntity} />
+                <ControlPanel entities={values.entities}
+                createEntity={values.createEntity}
+                changePosition={values.changePosition}
+                selectedEntity={values.selectedEntity}
+                setSelectedEntity={values.setSelectedEntity} />
               </>
             )
           }

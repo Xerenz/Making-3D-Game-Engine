@@ -6,31 +6,44 @@ const ProductContext = React.createContext()
 
 class ProductProvider extends Component {
     state = {
-        box : {}
-    }
-
-    componentDidMount() {
-        
-    }
-
-    makeBox = (heigth, width, depth) => {
-        const boxGeometry = new THREE.BoxGeometry(heigth, width, depth)
-        const boxMaterial = new THREE.MeshPhongMaterial({ color : 0xff33aa })
-        const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial)
-        this.setState({ box : boxMesh })
+        entities : [],
+        selectedEntity : {},
     }
 
     createEntity = () => {
         const entity = new Entity()
-        this.setState({ box : entity })
+        console.log("Creating new entity =======>", entity)
+        let entities = [...this.state.entities, entity]
+        console.log("Entity Lisy ===========>", entities)
+        this.setState({ entities : entities })
+    }
+
+    setSelectedEntity = index => {
+        const entity = this.state.entities[index]
+        console.log("Selected Entity ===========>", entity)
+        this.setState({ selectedEntity : entity })
+    }
+
+    changePosition = (unit, direction) => {
+        const entity = {...this.state.selectedEntity}
+        let entities = [...this.state.entities]
+        const index = entities.indexOf(entity)
+
+        entity.mesh.cannon_rigid_body.position[direction] += unit
+        entities[index] = entity
+        this.setState({
+            selectedEntity : entity,
+            entities : entities
+        })
     }
 
     render() {
         return(
             <ProductContext.Provider value={{
                 ...this.state,
-                makeBox : this.makeBox,
                 createEntity : this.createEntity,
+                changePosition : this.changePosition,
+                setSelectedEntity : this.setSelectedEntity,
             }}>
                 {this.props.children}
             </ProductContext.Provider>
@@ -71,64 +84,39 @@ let Entity = function Entity(params) {
     this.mesh.cannon_rigid_body = body;
     this.name = name;
 
-    world.add(body);
-    scene.add(this.mesh);
-    this.addEntityToDict();
+    // world.add(body);
+    // scene.add(this.mesh);
+    // this.addEntityToDict();
 
     return this;
 }
 
 Entity.prototype._count = 0;
 
-Entity.prototype.addEntityToDict = function () {
-    entities[this.id] = this;
-
-    const entitySelect = document.getElementById('entities-select');
-    let option = document.createElement('option');
-    option.text = this.name;
-    option.value = this.id;
-    option.id = 'select_option_' + this.id;
-    entitySelect.appendChild(option);
+function getGeometryShape(params) {
+    let geometry, shape;
+    let width = ('width' in params) ? params.width : 5;
+    let height = ('height' in params) ? params.height : 5;
+    let depth = ('depth' in params) ? params.depth : 5;
+    let radius = ('radius' in params) ? params.radius : 2.5;
+    switch (params.type) {
+        case 'box':
+            geometry = new THREE.BoxGeometry(width, height, depth);
+            shape = new CANNON.Box(new CANNON.Vec3(width / 2, height / 2, depth / 2));
+            break;
+        case 'sphere':
+            geometry = new THREE.SphereGeometry(radius, 20, 20);
+            shape = new CANNON.Sphere(radius);
+            break;
+        case 'cylinder':
+            geometry = new THREE.CylinderGeometry(radius, radius, height, 20);
+            shape = new CANNON.Cylinder(radius, radius, height, 20);
+            break;
+        default:
+            throw "Visual type not recognized: " + params.type;
+    }
+    return {geometry, shape}
 }
-
-Entity.prototype.changeColor = function (r, g, b) {
-    this.mesh.material.color = {r, g, b};
-}
-
-Entity.prototype.select = function () {
-    currentEntity = this;
-    const currentEntitySpan = document.getElementById('current-entity');
-    currentEntitySpan.innerText = this.name;
-
-    const xElement = document.getElementById('x');
-    const yElement = document.getElementById('y');
-    const zElement = document.getElementById('z');
-
-    xElement.value = this.mesh.position.x;
-    yElement.value = this.mesh.position.y;
-    zElement.value = this.mesh.position.z;
-    return this;
-}
-
-Entity.prototype.kick = function (magnitude, location) {
-    this.mesh.cannon_rigid_body.applyImpulse(new CANNON.Vec3(...magnitude), new CANNON.Vec3(...location))
-}
-Entity.prototype.addComponent = function (component) {
-    this.components[component.name] = component;
-    return this;
-}
-
-Entity.prototype.removeComponent = function (componentName) {
-    delete this.components[componentName];
-    return this;
-}
-
-Entity.prototype.print = function () {
-    console.log(JSON.stringify(this, null, 4));
-    return this;
-}
-
-// Product consumer export
 
 const ProductConsumer = ProductContext.Consumer
 
