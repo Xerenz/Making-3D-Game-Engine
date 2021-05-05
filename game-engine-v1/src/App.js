@@ -15,10 +15,7 @@ function App() {
             return (
               <>
                 <Canvas box={values.box}/>
-                <ControlPanel moveX={values.moveX} 
-                              moveY={values.moveY} 
-                              moveZ={values.moveZ}
-                              box={values.box} />
+                <ControlPanel box={values.box} makeBox={values.makeBox}/>
               </>
             )
           }
