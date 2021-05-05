@@ -48,12 +48,76 @@ function main() {
     }
 
 
-    // Light
+    // Lights
+
+    // Ambient Light
     {
         const intensity = 1,
                 color = 0xffffff
         const light = new THREE.AmbientLight(color, intensity)
+        // scene.add(light)
+    }
+
+    // Hemisphere Light
+    {
+        const intensity = 1,
+                skyColor = 0xB1E1FF,
+                groundColor = 0xB97A20
+        const light = new THREE.HemisphereLight(skyColor, groundColor, intensity)
         scene.add(light)
+    }
+
+    // Directional Light
+    {
+        const intensity = 1,
+                color = 0xffffff
+        const light = new THREE.DirectionalLight(color, intensity)
+        light.position.set(0, 10, 0)
+        light.target.position.set(-5, 0, 0)
+        // scene.add(light.target)
+
+    }
+
+    // Point Light
+    {
+        const intensity = 1,
+                color = 0xffffff
+        const light = new THREE.PointLight(color, intensity)
+        light.position.set(0, 10, 0)
+        // light.target.position.set(-5, 0, 0)
+        // scene.add(light)
+        // scene.add(light.target)
+    }
+
+    // Spot Light
+    {
+        const intensity = 1,
+                color = 0xffffff
+        const light = new THREE.SpotLight(color, intensity)
+        light.position.y = 20
+        scene.add(light)
+    }
+
+    // Cube
+    {   
+        const boxSize = 5
+        const boxGeometry = new THREE.BoxGeometry(boxSize, boxSize, boxSize)
+        const boxMaterial = new THREE.MeshPhongMaterial({ color : 0xccaa88 })
+        const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial)
+        boxMesh.position.set(boxSize, boxSize / 2, 0)
+        scene.add(boxMesh)
+    }
+
+    // Sphere
+    {
+        const radius = 5,
+                widthSegment = 32,
+                heightSegment = 16
+        const sphereGeometry = new THREE.SphereGeometry(radius, widthSegment, heightSegment)
+        const sphereMaterial = new THREE.MeshPhongMaterial({ color : 0xccdd33})
+        const sphereMesh = new THREE.Mesh(sphereGeometry, sphereMaterial)
+        sphereMesh.position.set(-radius, 2 * radius, radius)
+        scene.add(sphereMesh)
     }
 
 
