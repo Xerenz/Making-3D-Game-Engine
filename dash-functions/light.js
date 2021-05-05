@@ -27,8 +27,8 @@ function main() {
     const bottom = -1
     const near = 5
     const far = 50
-    const camera = new THREE.OrthographicCamera(left, right, top, bottom, near, far)
-    camera.zoom = 0.2
+    const orthoCamera = new THREE.OrthographicCamera(left, right, top, bottom, near, far)
+    orthoCamera.zoom = 0.2
 
     // Orbit Controls
     const orbitControls = new OrbitControls(camera, canvas)
